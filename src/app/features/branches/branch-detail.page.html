@@ -1,0 +1,122 @@
+@if (branch(); as b) {
+  <app-page-hero
+    [title]="'Sweet Estate ' + b.name"
+    [eyebrow]="b.isMain ? 'Main branch' : 'Branch'"
+    [lead]="b.area ? b.area + ', ' + site.city : site.city"
+    [crumbs]="[{ label: 'Branches', path: '/branches' }, { label: b.name }]"
+  >
+    <div class="btn-row hero-actions">
+      @if (b.phone; as phone) {
+        <a
+          class="btn"
+          [href]="'tel:' + phone.e164"
+          appTrack="phone_click"
+          [trackParams]="{ branch: b.id, location: 'branch_hero' }"
+        >
+          <app-icon name="phone" /> Call {{ phone.display }}
+        </a>
+      }
+      @if (directions(); as url) {
+        <a
+          class="btn btn--outline"
+          [href]="url"
+          target="_blank"
+          rel="noopener noreferrer"
+          appTrack="directions_click"
+          [trackParams]="{ branch: b.id, location: 'branch_hero' }"
+        >
+          <app-icon name="directions" /> Get directions
+          <span class="visually-hidden">(opens Google Maps)</span>
+        </a>
+      }
+    </div>
+  </app-page-hero>
+
+  <section class="section">
+    <div class="container branch">
+      <div class="card branch__panel">
+        <h2>Branch details</h2>
+        <dl class="detail-list">
+          <div>
+            <app-icon name="pin" />
+            <div>
+              <dt>Address</dt>
+              <dd>{{ address() }}</dd>
+            </div>
+          </div>
+          <div>
+            <app-icon name="clock" />
+            <div>
+              <dt>Opening hours</dt>
+              <dd>{{ b.hours?.summary ?? 'Please contact the branch for timings.' }}</dd>
+            </div>
+          </div>
+          <div>
+            <app-icon name="phone" />
+            <div>
+              <dt>Phone</dt>
+              <dd>
+                @if (b.phone; as phone) {
+                  <a
+                    [href]="'tel:' + phone.e164"
+                    appTrack="phone_click"
+                    [trackParams]="{ branch: b.id, location: 'branch_details' }"
+                    >{{ phone.display }}</a
+                  >
+                } @else {
+                  Not yet listed. Please
+                  <a routerLink="/contact" [queryParams]="{ branch: b.id, type: 'Branch question' }">send us an enquiry</a>
+                  or call another branch.
+                }
+              </dd>
+            </div>
+          </div>
+        </dl>
+
+        <div class="branch__order">
+          <h2>Order from this branch</h2>
+          <app-delivery-links [branch]="b" />
+          <p class="small muted" style="margin-top: 12px">
+            Delivery availability and coverage are decided by Swiggy and Zomato.
+          </p>
+        </div>
+      </div>
+
+      <aside class="card card--flat branch__panel">
+        <h2>Questions for this branch?</h2>
+        <p class="muted">Ask about today’s sweets, bulk orders or timings.</p>
+        <div class="branch__actions">
+          <app-whatsapp-cta
+            [message]="whatsappMessage()"
+            label="Ask on WhatsApp"
+            [params]="{ branch: b.id, location: 'branch_aside' }"
+            [fallbackQuery]="{ branch: b.id, type: 'Branch question' }"
+          />
+          <a routerLink="/bulk-orders" [queryParams]="{ branch: b.id }" class="btn btn--outline">
+            <app-icon name="gift" /> Bulk order enquiry
+          </a>
+          <a routerLink="/sweets" class="btn btn--outline"><app-icon name="search" /> Browse sweets</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  @if (others().length) {
+    <section class="section section--ivory">
+      <div class="container">
+        <div class="section-head"><h2>Other branches</h2></div>
+        <div class="grid grid--cards">
+          @for (o of others(); track o.id) {
+            <app-branch-card [branch]="o" />
+          }
+        </div>
+      </div>
+    </section>
+  }
+} @else {
+  <app-page-hero title="Branch not found" [crumbs]="[{ label: 'Branches', path: '/branches' }, { label: 'Not found' }]">
+    <div class="btn-row hero-actions">
+      <a routerLink="/branches" class="btn">See all branches</a>
+    </div>
+  </app-page-hero>
+}

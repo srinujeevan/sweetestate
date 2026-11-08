@@ -1,0 +1,108 @@
+<app-page-hero
+  title="Sweets & Home Foods"
+  eyebrow="Our menu"
+  lead="Traditional Andhra sweets and home foods from Sweet Estate. Search, filter by category, and tap any item for packs and prices."
+  [crumbs]="[{ label: 'Sweets' }]"
+/>
+
+<section class="section catalogue">
+  <div class="container">
+    <div class="toolbar" role="search">
+      <div class="field toolbar__search">
+        <label for="product-search" class="field__label">Search</label>
+        <div class="search-input">
+          <app-icon name="search" [size]="18" />
+          <input
+            #searchBox
+            id="product-search"
+            class="input"
+            type="search"
+            placeholder="e.g. Sunnundalu, Ariselu"
+            autocomplete="off"
+            maxlength="60"
+            [value]="search()"
+            (input)="setSearch(searchBox.value)"
+          />
+        </div>
+      </div>
+      <div class="field toolbar__sort">
+        <label for="product-sort" class="field__label">Sort by</label>
+        <select id="product-sort" class="select" #sortBox (change)="setSort(sortBox.value)">
+          @for (o of sortOptions; track o.value) {
+            <option [value]="o.value" [selected]="o.value === activeSort()">{{ o.label }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="chips" role="group" aria-label="Filter by category">
+      <button type="button" class="chip" [attr.aria-pressed]="!activeCategory()" (click)="setCategory(null)">
+        All <span class="chip__count">{{ catalogue.products().length }}</span>
+      </button>
+      @for (c of catalogue.categories(); track c.id) {
+        <button
+          type="button"
+          class="chip"
+          [attr.aria-pressed]="activeCategory()?.id === c.id"
+          (click)="setCategory(c.id)"
+        >
+          {{ c.name }}
+          @if (catalogue.countsByCategory()[c.id]; as n) {
+            <span class="chip__count">{{ n }}</span>
+          }
+        </button>
+      }
+    </div>
+
+    <p class="results-count" role="status" aria-live="polite">
+      @if (categoryIsUnlisted()) {
+        No items listed online in {{ activeCategory()!.name }} yet
+      } @else {
+        Showing {{ results().length }} {{ results().length === 1 ? 'item' : 'items' }}
+        @if (activeCategory()) {
+          in {{ activeCategory()!.name }}
+        }
+        @if (search()) {
+          matching “{{ search() }}”
+        }
+      }
+    </p>
+
+    @if (categoryIsUnlisted()) {
+      <div class="empty-state">
+        <h2>Explore {{ activeCategory()!.name }} in store</h2>
+        <p>
+          {{ activeCategory()!.description }} We haven’t listed this range online yet, so visit a branch or ask us
+          what’s available today.
+        </p>
+        <div class="btn-row">
+          <app-whatsapp-cta
+            [message]="categoryMessage()"
+            label="Ask on WhatsApp"
+            [params]="{ location: 'catalogue_empty_category', category: activeCategory()!.id }"
+            [fallbackQuery]="{ type: 'Product enquiry' }"
+          />
+          <a routerLink="/branches" class="btn btn--outline">Find a branch</a>
+        </div>
+      </div>
+    } @else if (results().length === 0) {
+      <div class="empty-state">
+        <h2>No items match your search</h2>
+        <p>Try a different spelling, or browse all sweets. Many items are available in store even if not listed here.</p>
+        <div class="btn-row">
+          <button type="button" class="btn" (click)="clearFilters()">Show all sweets</button>
+        </div>
+      </div>
+    } @else {
+      <div class="grid grid--products">
+        @for (p of results(); track p.id) {
+          <app-product-card [product]="p" />
+        }
+      </div>
+    }
+
+    <div class="catalogue__note">
+      <app-price-note />
+    </div>
+  </div>
+</section>

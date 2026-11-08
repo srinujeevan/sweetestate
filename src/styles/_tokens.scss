@@ -1,0 +1,56 @@
+:root {
+  /* Palette — warm orange: soft peach cream, saffron orange, burnt orange, amber accents. Leaf green only for the veg mark. */
+  --c-ivory: #fffbf6;
+  --c-cream: #fdf5ea; /* page background, close to the banner's warm beige */
+  --c-sand: #fde8d2;
+  --c-border: #f3dcc2;
+  --c-border-strong: #e9b98a;
+
+  /* Bright orange for FILLS (top bar, buttons, badges), with white text (owner preference). */
+  --c-accent: #ff7d0a;
+  --c-accent-hover: #f06c00;
+  --c-on-accent: #ffffff; /* white text on orange, kept bold for legibility */
+
+  /* Deeper shades of the same orange for TEXT on cream (bright orange text would be unreadable). */
+  --c-primary: #b35300; /* links, prices, icons (AA on cream) */
+  --c-primary-dark: #8a3e00; /* headings, footer background */
+  --c-primary-soft: #ffead2; /* peach: hovers, icon circles */
+
+  --c-gold: #e8962e; /* amber for lines and ornaments */
+  --c-gold-soft: #fed6a8;
+  --c-gold-hover: #fdc285;
+  --c-gold-text: #9a4a00; /* amber-brown that passes AA on cream */
+
+  --c-leaf: #376536;
+  --c-leaf-soft: #e5eee0;
+
+  --c-ink: #2b1a10;
+  --c-muted: #6b4f3c;
+  --c-placeholder: #a89282;
+  --c-white: #ffffff;
+
+  /* Text on orange / burnt-orange backgrounds (top bar, footer, feature bands) */
+  --c-on-dark: #fff3e8;
+  --c-on-dark-muted: #fcd3b0;
+
+  --c-danger: #a02518;
+  --c-danger-soft: #fbeae6;
+  --c-info: #7a3d00;
+  --c-info-soft: #fff1dc;
+  --c-info-border: #f6cf9b;
+
+  --font-display: 'Fraunces', 'Iowan Old Style', Georgia, 'Times New Roman', serif;
+  --font-body: 'Source Sans 3', 'Segoe UI', system-ui, -apple-system, Roboto, Arial, sans-serif;
+
+  --radius-lg: 22px;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow-sm: 0 1px 2px rgb(138 62 0 / 0.07), 0 2px 8px rgb(138 62 0 / 0.05);
+  --shadow: 0 2px 6px rgb(138 62 0 / 0.07), 0 12px 32px rgb(138 62 0 / 0.1);
+
+  --container: 1200px;
+  --gutter: clamp(16px, 4vw, 32px);
+  --section-y: clamp(56px, 8vw, 104px);
+  --header-h: 72px;
+  --focus: 0 0 0 3px var(--c-ivory), 0 0 0 5px var(--c-primary);
+}

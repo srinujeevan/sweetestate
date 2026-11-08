@@ -1,0 +1,220 @@
+<!-- Hero -->
+<section class="hero">
+  <img
+    class="hero__bg"
+    src="images/banner-sweets.jpg"
+    alt="A brass plate of assorted sweets with a lit diya, lotus flower and a gift box"
+    width="1736"
+    height="906"
+    fetchpriority="high"
+  />
+  <div class="container hero__inner">
+    <div class="hero__copy">
+      <p class="eyebrow">{{ site.legalName }} · {{ site.city }}</p>
+      <h1>A Taste of Tradition, Made for Every Celebration.</h1>
+      <p class="hero__lead">
+        Discover traditional Andhra sweets, ghee-rich favourites, fresh bakery treats and more at
+        {{ site.legalName }}, {{ site.city }}.
+      </p>
+      <div class="btn-row">
+        <a routerLink="/sweets" class="btn">Explore Our Sweets</a>
+        <a routerLink="/branches" class="btn btn--outline">Find a Branch</a>
+      </div>
+      <div class="hero__secondary">
+        <a routerLink="/order-online" class="link-arrow">Order Online</a>
+        <app-whatsapp-cta
+          [message]="msg.general()"
+          label="WhatsApp Us"
+          extraClass="btn--sm"
+          [params]="{ location: 'home_hero' }"
+          [showFallback]="false"
+        />
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Highlights -->
+<section class="highlights" aria-label="Why visit Sweet Estate">
+  <div class="container">
+    <ul class="highlights__list">
+      @for (h of highlights; track h.title) {
+        <li>
+          <span class="highlights__icon"><app-icon [name]="h.icon" [size]="22" /></span>
+          <div>
+            <strong>{{ h.title }}</strong>
+            <span>{{ h.text }}</span>
+          </div>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Bestsellers -->
+<section class="section">
+  <div class="container">
+    <div class="section-head__row">
+      <div class="section-head">
+        <p class="eyebrow">Recommended</p>
+        <h2>Bestsellers from our counter</h2>
+        <p>Customer favourites, with indicative prices per pack.</p>
+      </div>
+      <a routerLink="/sweets" class="btn btn--outline">View all sweets</a>
+    </div>
+    <div class="grid grid--bestsellers">
+      @for (p of bestsellers(); track p.id) {
+        <app-product-card [product]="p" />
+      }
+    </div>
+    <div class="home-note"><app-price-note /></div>
+  </div>
+</section>
+
+<!-- Specialities -->
+<section class="section section--ivory">
+  <div class="container">
+    <div class="section-head section-head--center">
+      <div class="ornament"><span></span></div>
+      <p class="eyebrow">Andhra specialities</p>
+      <h2>Regional favourites worth the visit</h2>
+      <p>From Kakinada Kaja to Pootharekulu, the sweets Andhra celebrates with.</p>
+    </div>
+    <div class="specialities">
+      @for (s of specialities; track s.name) {
+        <article class="speciality">
+          @if (s.photo; as ph) {
+            <img class="speciality__photo" [src]="ph.src" [alt]="ph.alt" width="1200" height="750" loading="lazy" decoding="async" />
+          } @else {
+            <span class="speciality__mark" aria-hidden="true"></span>
+          }
+          <h3>{{ s.name }}</h3>
+          <p>{{ s.text }}</p>
+          @if (s.link) {
+            <a [routerLink]="s.link.path" [queryParams]="s.link.query ?? null" class="link-arrow">{{ s.link.label }}</a>
+          }
+        </article>
+      }
+    </div>
+  </div>
+</section>
+
+<!-- Categories -->
+<section class="section">
+  <div class="container">
+    <div class="section-head">
+      <p class="eyebrow">Shop by category</p>
+      <h2>Sweets, home foods &amp; more</h2>
+    </div>
+    <ul class="categories">
+      @for (c of catalogue.categories(); track c.id) {
+        <li>
+          <a
+            class="category"
+            [routerLink]="c.group === 'sweets' ? '/sweets' : '/bakery-and-food'"
+            [queryParams]="c.group === 'sweets' ? { category: c.id } : null"
+            [fragment]="c.group === 'sweets' ? undefined : c.id"
+          >
+            <span class="category__name">{{ c.name }}</span>
+            <span class="category__count">
+              @if (catalogue.countsByCategory()[c.id]; as n) {
+                {{ n }} {{ n === 1 ? 'item' : 'items' }} listed
+              } @else {
+                Explore in store
+              }
+            </span>
+          </a>
+        </li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Branches -->
+<section class="section section--ivory">
+  <div class="container">
+    <div class="section-head__row">
+      <div class="section-head">
+        <p class="eyebrow">Visit us</p>
+        <h2>Find Sweet Estate near you</h2>
+        <p>{{ site.totalBranches }} branches across {{ site.city }}. Walk in, take away, or call ahead.</p>
+      </div>
+      <a routerLink="/branches" class="btn btn--outline">All branches</a>
+    </div>
+    <div class="grid grid--cards">
+      @for (b of branches.active(); track b.id) {
+        <app-branch-card [branch]="b" />
+      }
+    </div>
+    @if (branches.pending().length) {
+      <p class="muted small home-note">
+        Details for {{ branches.pending().length }} more branches will be added soon.
+      </p>
+    }
+  </div>
+</section>
+
+<!-- Gift box gallery -->
+<section class="section gallery" aria-labelledby="gallery-title">
+  <div class="container">
+    <div class="section-head__row">
+      <div class="section-head">
+        <p class="eyebrow">Gift boxes</p>
+        <h2 id="gallery-title">Sweet gift boxes for every occasion</h2>
+        <p>Assorted sweet boxes for festivals, weddings, return gifts and corporate gifting. Ask us about box sizes and assortments.</p>
+      </div>
+      <a routerLink="/bulk-orders" [queryParams]="{ occasion: 'Corporate gifting' }" class="btn btn--outline">Enquire about gift boxes</a>
+    </div>
+    <ul class="gallery__grid">
+      @for (g of giftGallery; track g.photo.src) {
+        <li class="gallery__item">
+          <img [src]="g.photo.src" [alt]="g.photo.alt" width="1200" height="900" loading="lazy" decoding="async" />
+          <span class="gallery__label">{{ g.label }}</span>
+        </li>
+      }
+    </ul>
+    <p class="gallery__note small muted">
+      Representative photos of sweet gift boxes, not Sweet Estate’s own packaging ·
+      <a routerLink="/image-credits">Image credits</a>
+    </p>
+  </div>
+</section>
+
+<!-- Bulk & gifting -->
+<section class="section section--deep bulk">
+  <div class="container bulk__grid">
+    <div>
+      <p class="eyebrow">Bulk orders &amp; gifting</p>
+      <h2>Sweets for weddings, festivals and every function</h2>
+      <p class="bulk__lead">
+        Planning an event or corporate gifting? Share the occasion, quantity and date, and the team can confirm options
+        and pricing with you.
+      </p>
+      <div class="btn-row">
+        <a routerLink="/bulk-orders" class="btn">Plan a bulk order</a>
+        <app-whatsapp-cta
+          [message]="msg.bulk()"
+          label="Ask on WhatsApp"
+          extraClass="btn--light"
+          [params]="{ location: 'home_bulk' }"
+          [showFallback]="false"
+        />
+      </div>
+    </div>
+    <ul class="bulk__occasions" aria-label="Occasions">
+      @for (o of occasions; track o) {
+        <li>{{ o }}</li>
+      }
+    </ul>
+  </div>
+</section>
+
+<!-- Feedback -->
+<section class="section">
+  <div class="container container--narrow text-center">
+    <app-icon name="heart" [size]="32" class="feedback__icon" />
+    <h2>Your feedback matters</h2>
+    <p class="muted">Visited a branch recently? Tell us what you loved or what we could do better.</p>
+    <a routerLink="/contact" [queryParams]="{ type: 'Feedback' }" class="btn">Share your feedback</a>
+  </div>
+</section>

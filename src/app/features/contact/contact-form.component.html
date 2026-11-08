@@ -1,0 +1,167 @@
+@if (outcome(); as result) {
+  <app-enquiry-result
+    [outcome]="result"
+    [reference]="reference()"
+    [whatsappMessage]="lastMessage()"
+    (reset)="reset()"
+  />
+} @else {
+  <form #formEl class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="contact-form-title">
+    @if (!isLive) {
+      <div class="notice notice--demo" role="note">
+        <p>
+          <strong>Demo mode:</strong> this form is not yet connected, so submissions are not sent to Sweet Estate. Please
+          call a branch for anything urgent.
+        </p>
+      </div>
+    }
+
+    @if (errorSummary().length) {
+      <div class="notice notice--error form-summary" role="alert">
+        <div>
+          <strong>Please fix the following:</strong>
+          <ul>
+            @for (e of errorSummary(); track e.id) {
+              <li><a [href]="'#' + e.id" (click)="focusField(e.id, $event)">{{ e.text }}</a></li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    <div class="form-grid">
+      <div class="field">
+        <label class="field__label" for="contact-name">Name</label>
+        <input
+          id="contact-name"
+          class="input"
+          formControlName="name"
+          autocomplete="name"
+          maxlength="80"
+          [attr.aria-invalid]="show('name')"
+          [attr.aria-describedby]="show('name') ? 'contact-name-error' : null"
+        />
+        @if (show('name')) {
+          <p class="field__error" id="contact-name-error">{{ error('name') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="contact-phone">Mobile number</label>
+        <input
+          id="contact-phone"
+          class="input"
+          type="tel"
+          inputmode="tel"
+          formControlName="phone"
+          autocomplete="tel"
+          placeholder="e.g. 98765 43210"
+          maxlength="16"
+          [attr.aria-invalid]="show('phone')"
+          [attr.aria-describedby]="show('phone') ? 'contact-phone-error' : null"
+        />
+        @if (show('phone')) {
+          <p class="field__error" id="contact-phone-error">{{ error('phone') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="contact-email">Email <span class="field__optional">(optional)</span></label>
+        <input
+          id="contact-email"
+          class="input"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          maxlength="120"
+          [attr.aria-invalid]="show('email')"
+          [attr.aria-describedby]="show('email') ? 'contact-email-error' : null"
+        />
+        @if (show('email')) {
+          <p class="field__error" id="contact-email-error">{{ error('email') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="contact-enquiryType">Enquiry type</label>
+        <select
+          id="contact-enquiryType"
+          class="select"
+          formControlName="enquiryType"
+          [attr.aria-invalid]="show('enquiryType')"
+          [attr.aria-describedby]="show('enquiryType') ? 'contact-type-error' : null"
+        >
+          <option value="" disabled>Select…</option>
+          @for (t of types; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+        @if (show('enquiryType')) {
+          <p class="field__error" id="contact-type-error">{{ error('enquiryType') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="contact-branch">Preferred branch <span class="field__optional">(optional)</span></label>
+        <select id="contact-branch" class="select" formControlName="preferredBranchId">
+          <option value="">No preference</option>
+          @for (b of branches.active(); track b.id) {
+            <option [value]="b.id">{{ b.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="contact-message">Message</label>
+      <textarea
+        id="contact-message"
+        class="textarea"
+        formControlName="message"
+        maxlength="1000"
+        rows="5"
+        [attr.aria-invalid]="show('message')"
+        [attr.aria-describedby]="show('message') ? 'contact-message-error contact-message-hint' : 'contact-message-hint'"
+      ></textarea>
+      <p class="field__hint" id="contact-message-hint">{{ form.controls.message.value.length }}/1000 characters</p>
+      @if (show('message')) {
+        <p class="field__error" id="contact-message-error">{{ error('message') }}</p>
+      }
+    </div>
+
+    <!-- Honeypot: leave empty -->
+    <div class="hp-field" aria-hidden="true">
+      <label for="contact-website">Website</label>
+      <input id="contact-website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label class="check" for="contact-consent">
+        <input
+          id="contact-consent"
+          type="checkbox"
+          formControlName="consent"
+          [attr.aria-invalid]="show('consent')"
+          [attr.aria-describedby]="show('consent') ? 'contact-consent-error' : null"
+        />
+        <span>
+          I agree that Sweet Estate may contact me by phone, WhatsApp or email about this enquiry. This does not sign me
+          up for marketing messages. See the <a routerLink="/privacy-policy">Privacy Policy</a>.
+        </span>
+      </label>
+      @if (show('consent')) {
+        <p class="field__error" id="contact-consent-error">{{ error('consent') }}</p>
+      }
+    </div>
+
+    <div>
+      <button type="submit" class="btn" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner" aria-hidden="true"></span> Sending…
+        } @else {
+          Send enquiry
+        }
+      </button>
+    </div>
+  </form>
+}

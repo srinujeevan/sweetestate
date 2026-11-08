@@ -1,0 +1,258 @@
+@if (outcome(); as result) {
+  <app-enquiry-result
+    [outcome]="result"
+    [reference]="reference()"
+    [whatsappMessage]="lastMessage()"
+    (reset)="reset()"
+  />
+} @else {
+  <form #formEl class="form" [formGroup]="form" (ngSubmit)="submit()" novalidate aria-labelledby="bulk-form-title">
+    @if (!isLive) {
+      <div class="notice notice--demo" role="note">
+        <p>
+          <strong>Demo mode:</strong> this form is not yet connected, so enquiries are not sent to Sweet Estate. You’ll be
+          offered WhatsApp and phone options after submitting.
+        </p>
+      </div>
+    }
+
+    @if (errorSummary().length) {
+      <div class="notice notice--error form-summary" role="alert">
+        <div>
+          <strong>Please fix the following:</strong>
+          <ul>
+            @for (e of errorSummary(); track e.id) {
+              <li><a [href]="'#' + e.id" (click)="focusField(e.id, $event)">{{ e.text }}</a></li>
+            }
+          </ul>
+        </div>
+      </div>
+    }
+
+    <fieldset class="choice-group">
+      <legend class="field__label" id="bulk-occasion-label">Occasion</legend>
+      <div class="choice-row" role="radiogroup" aria-labelledby="bulk-occasion-label">
+        @for (o of occasions; track o; let first = $first) {
+          <label class="choice">
+            <input
+              type="radio"
+              formControlName="occasion"
+              [value]="o"
+              [attr.id]="first ? 'bulk-occasion' : null"
+              [attr.aria-invalid]="show('occasion')"
+            />
+            <span>{{ o }}</span>
+          </label>
+        }
+      </div>
+      @if (show('occasion')) {
+        <p class="field__error">{{ error('occasion') }}</p>
+      }
+    </fieldset>
+
+    <div class="form-grid">
+      <div class="field">
+        <label class="field__label" for="bulk-name">Name</label>
+        <input
+          id="bulk-name"
+          class="input"
+          formControlName="name"
+          autocomplete="name"
+          maxlength="80"
+          [attr.aria-invalid]="show('name')"
+          [attr.aria-describedby]="show('name') ? 'bulk-name-error' : null"
+        />
+        @if (show('name')) {
+          <p class="field__error" id="bulk-name-error">{{ error('name') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="bulk-phone">Mobile number</label>
+        <input
+          id="bulk-phone"
+          class="input"
+          type="tel"
+          inputmode="tel"
+          formControlName="phone"
+          autocomplete="tel"
+          placeholder="e.g. 98765 43210"
+          maxlength="16"
+          [attr.aria-invalid]="show('phone')"
+          [attr.aria-describedby]="show('phone') ? 'bulk-phone-error' : null"
+        />
+        @if (show('phone')) {
+          <p class="field__error" id="bulk-phone-error">{{ error('phone') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="bulk-email">Email <span class="field__optional">(optional)</span></label>
+        <input
+          id="bulk-email"
+          class="input"
+          type="email"
+          formControlName="email"
+          autocomplete="email"
+          maxlength="120"
+          [attr.aria-invalid]="show('email')"
+          [attr.aria-describedby]="show('email') ? 'bulk-email-error' : null"
+        />
+        @if (show('email')) {
+          <p class="field__error" id="bulk-email-error">{{ error('email') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="bulk-eventDate">Event date</label>
+        <input
+          id="bulk-eventDate"
+          class="input"
+          type="date"
+          formControlName="eventDate"
+          [min]="minDate"
+          [attr.aria-invalid]="show('eventDate')"
+          [attr.aria-describedby]="show('eventDate') ? 'bulk-date-error' : null"
+        />
+        @if (show('eventDate')) {
+          <p class="field__error" id="bulk-date-error">{{ error('eventDate') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="bulk-estimatedQuantity">Estimated quantity</label>
+        <input
+          id="bulk-estimatedQuantity"
+          class="input"
+          formControlName="estimatedQuantity"
+          placeholder="e.g. 200 boxes, or 10 kg"
+          maxlength="80"
+          [attr.aria-invalid]="show('estimatedQuantity')"
+          [attr.aria-describedby]="show('estimatedQuantity') ? 'bulk-qty-error' : 'bulk-qty-hint'"
+        />
+        <p class="field__hint" id="bulk-qty-hint">A rough number is fine.</p>
+        @if (show('estimatedQuantity')) {
+          <p class="field__error" id="bulk-qty-error">{{ error('estimatedQuantity') }}</p>
+        }
+      </div>
+
+      <div class="field">
+        <label class="field__label" for="bulk-branch">Preferred branch <span class="field__optional">(optional)</span></label>
+        <select id="bulk-branch" class="select" formControlName="preferredBranchId">
+          <option value="">No preference</option>
+          @for (b of branches.active(); track b.id) {
+            <option [value]="b.id">{{ b.name }}</option>
+          }
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="bulk-preferredProducts">
+        Preferred products <span class="field__optional">(optional)</span>
+      </label>
+      <input
+        id="bulk-preferredProducts"
+        class="input"
+        formControlName="preferredProducts"
+        list="bulk-product-list"
+        placeholder="e.g. Kakinada Kaja, Mysore Pak, gift boxes"
+        maxlength="300"
+        [attr.aria-invalid]="show('preferredProducts')"
+      />
+      <datalist id="bulk-product-list">
+        @for (p of catalogue.products(); track p.id) {
+          <option [value]="p.name"></option>
+        }
+      </datalist>
+      @if (show('preferredProducts')) {
+        <p class="field__error">{{ error('preferredProducts') }}</p>
+      }
+    </div>
+
+    <fieldset class="choice-group">
+      <legend class="field__label">Delivery or pickup?</legend>
+      <div class="choice-row">
+        @for (f of fulfilmentOptions; track f.value) {
+          <label class="choice">
+            <input type="radio" formControlName="fulfilment" [value]="f.value" />
+            <span>{{ f.label }}</span>
+          </label>
+        }
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label class="field__label" for="bulk-location">
+        Event / delivery location
+        @if (form.controls.fulfilment.value !== 'delivery') {
+          <span class="field__optional">(optional)</span>
+        }
+      </label>
+      <input
+        id="bulk-location"
+        class="input"
+        formControlName="location"
+        placeholder="Area or venue in Visakhapatnam"
+        maxlength="200"
+        autocomplete="address-level3"
+        [attr.aria-invalid]="show('location')"
+        [attr.aria-describedby]="show('location') ? 'bulk-location-error' : 'bulk-location-hint'"
+      />
+      <p class="field__hint" id="bulk-location-hint">Delivery for bulk orders is subject to confirmation by the team.</p>
+      @if (show('location')) {
+        <p class="field__error" id="bulk-location-error">{{ error('location') }}</p>
+      }
+    </div>
+
+    <div class="field">
+      <label class="field__label" for="bulk-message">Anything else? <span class="field__optional">(optional)</span></label>
+      <textarea
+        id="bulk-message"
+        class="textarea"
+        formControlName="message"
+        maxlength="1000"
+        rows="4"
+        placeholder="Packaging, budget, timing or other details"
+        [attr.aria-invalid]="show('message')"
+      ></textarea>
+      @if (show('message')) {
+        <p class="field__error">{{ error('message') }}</p>
+      }
+    </div>
+
+    <div class="hp-field" aria-hidden="true">
+      <label for="bulk-website">Website</label>
+      <input id="bulk-website" type="text" formControlName="website" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="field">
+      <label class="check" for="bulk-consent">
+        <input
+          id="bulk-consent"
+          type="checkbox"
+          formControlName="consent"
+          [attr.aria-invalid]="show('consent')"
+          [attr.aria-describedby]="show('consent') ? 'bulk-consent-error' : null"
+        />
+        <span>
+          I agree that Sweet Estate may contact me by phone, WhatsApp or email about this enquiry. This does not sign me
+          up for marketing messages. See the <a routerLink="/privacy-policy">Privacy Policy</a>.
+        </span>
+      </label>
+      @if (show('consent')) {
+        <p class="field__error" id="bulk-consent-error">{{ error('consent') }}</p>
+      }
+    </div>
+
+    <div>
+      <button type="submit" class="btn" [disabled]="submitting()">
+        @if (submitting()) {
+          <span class="spinner" aria-hidden="true"></span> Sending…
+        } @else {
+          Send bulk enquiry
+        }
+      </button>
+    </div>
+  </form>
+}

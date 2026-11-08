@@ -1,0 +1,117 @@
+@if (product(); as p) {
+  <div class="container detail-crumbs">
+    <nav class="breadcrumbs" aria-label="Breadcrumb">
+      <ol>
+        <li><a routerLink="/">Home</a></li>
+        <li><a routerLink="/sweets">Sweets</a></li>
+        <li><span aria-current="page">{{ p.name }}</span></li>
+      </ol>
+    </nav>
+  </div>
+
+  <section class="container detail">
+    <div class="detail__media">
+      <div class="detail__visual">
+        <app-product-visual [product]="p" />
+      </div>
+      @if (p.image?.credit; as c) {
+        <p class="detail__credit">
+          Representative photo, not Sweet Estate’s own product: “{{ c.title }}” by {{ c.author }},
+          <a [href]="c.licenseUrl" target="_blank" rel="noopener noreferrer license">{{ c.license }}</a>, via
+          <a [href]="c.sourceUrl" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>.
+        </p>
+      }
+    </div>
+
+    <div class="detail__info">
+      <div class="detail__badges">
+        @if (p.bestseller) {
+          <span class="badge badge--gold">Bestseller</span>
+        }
+        @if (p.vegetarian) {
+          <span class="badge badge--veg"><span class="veg-mark" aria-hidden="true"></span>Vegetarian</span>
+        }
+      </div>
+      <h1>{{ p.name }}</h1>
+      @if (category(); as c) {
+        <p class="detail__category">
+          <a routerLink="/sweets" [queryParams]="{ category: c.id }">{{ c.name }}</a>
+        </p>
+      }
+      <p class="detail__desc">{{ p.shortDescription }}</p>
+
+      @if (p.variants.length > 1) {
+        <fieldset class="choice-group">
+          <legend class="field__label">Choose a pack</legend>
+          <div class="choice-row">
+            @for (v of p.variants; track v.id) {
+              <label class="choice">
+                <input
+                  type="radio"
+                  name="variant"
+                  [value]="v.id"
+                  [checked]="selected()?.id === v.id"
+                  (change)="select(v.id)"
+                />
+                <span>{{ v.label }} · ₹{{ v.price }}</span>
+              </label>
+            }
+          </div>
+        </fieldset>
+      }
+
+      @if (selected(); as v) {
+        <div class="price" aria-live="polite">
+          <span class="price__amount">₹{{ v.price }}</span>
+          <span class="price__unit">per {{ v.label }}</span>
+          <span class="price__tag">Indicative price</span>
+        </div>
+      }
+
+      <div class="btn-row detail__actions">
+        <app-whatsapp-cta
+          [message]="whatsappMessage()"
+          label="Ask on WhatsApp"
+          event="product_whatsapp_enquiry"
+          [params]="{ product: p.id, variant: selected()?.id ?? null }"
+          fallbackLabel="Enquire about this item"
+          [fallbackQuery]="enquiryQuery()"
+        />
+        <a routerLink="/order-online" class="btn btn--outline">
+          <app-icon name="bag" /> Order online
+        </a>
+      </div>
+      <a routerLink="/branches" class="link-arrow">Find a branch near you</a>
+
+      <div class="detail__notes">
+        <app-price-note />
+        <p class="small muted">
+          For ingredient, allergen or dietary information, please ask our staff at the branch before buying.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  @if (related().length) {
+    <section class="section section--ivory">
+      <div class="container">
+        <div class="section-head">
+          <h2>You may also like</h2>
+        </div>
+        <div class="grid grid--products">
+          @for (r of related(); track r.id) {
+            <app-product-card [product]="r" />
+          }
+        </div>
+      </div>
+    </section>
+  }
+} @else {
+  <app-page-hero title="We couldn’t find that item" [crumbs]="[{ label: 'Sweets', path: '/sweets' }, { label: 'Not found' }]">
+    <p class="lead">It may have been renamed or removed from the online menu.</p>
+    <div class="btn-row" style="margin-top: 24px">
+      <a routerLink="/sweets" class="btn">Browse all sweets</a>
+      <a routerLink="/contact" class="btn btn--outline">Contact us</a>
+    </div>
+  </app-page-hero>
+}
