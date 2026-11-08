@@ -1,0 +1,1 @@
+var t=["General question","Product enquiry","Bulk / event order","Branch question","Feedback","Other"],e=["Wedding","Family function","Birthday","Festival","Corporate gifting","Return gifts","Other"],n=["new","contacted","qualified","converted","closed"];export{t as a,e as b,n as c};
